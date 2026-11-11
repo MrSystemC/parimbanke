@@ -1,0 +1,13 @@
+# Location directory
+
+The selector retains the project's existing 89 region labels and maps them to 1,260 unique region/city entries. It includes every city entry in the source that belongs to one of those labels, plus two verified corrections; the source's separate Baikonur region is outside the project's existing scope and is not added.
+
+Source: https://github.com/Alex56dev/russian_cities (Alex56dev), `cities.json` and `regions.json`. The author describes this as an April 2026 city list and excludes villages. Retrieved 9 November 2026. Pinned cities blob SHA: `cdeb06bbd940d974f773c5db0be8730eca5686f2`; regions blob SHA: `db61751f57bceaf35058f6393d5f4c01f5d359b3`.
+
+Only factual city names and their source region mapping are retained, not code or commentary. No official or real-time government-registry certification is asserted. The directory includes source entries within federal cities (for example Зеленоград, Колпино and Инкерман). Region labels and source assignments are product navigation categories, not a geographic boundary dataset. Renamings, changed classifications and omissions in the upstream source require an explicit directory update.
+
+Cross-checked against the Rosstat-based 1,117-city snapshot at https://github.com/epogrebnyak/ru-cities. Two omissions were corrected: Урус-Мартан (confirmed by the Chechen Ministry of Finance 2025 budget publication, https://www.minfinchr.ru/storage/app/media/uploaded-files/dlya-grazhdan-k-zakonu-chechenskoy-respubliki-ot-05062025-27-rz-ob-utverzhdenii-otcheta-ob-ispolnenii-respublikanskogo-byudzheta-za-2024-god.pdf) and Алупка (regional business portal, https://business.rk.gov.ru/content/about-crimea/administrativnoe-delenie/kopiya-yalta). The list includes newer source entries such as Колтуши, Бугры, Тельмана and Ачхой-Мартан. It retains useful subordinate address locations from the source (including Чехов-2 and Чехов-3), so the displayed entry total is a selector count, not an official administrative count of independent cities.
+
+`lib/cities-by-region.json` is the versioned snapshot; `lib/regions.ts` provides the canonical region list and lookup/validation helpers. Empty city means all cities within a region. `Вся Россия` identifies country-wide coverage. Search ignores case, whitespace, hyphen variants and е/ё differences.
+
+The interface uses a two-step region → city selection with a global city search, and displays the snapshot date and entry count. The event form uses dependent named controls (`region` and `city`), clears the previous city when changing regions, and supports region-wide and country-wide coverage.

@@ -1,0 +1,37 @@
+# Example only. Install as parimbank-bot.service after reviewing paths and secrets.
+# Verify that /usr/bin/node is Node.js 22.13+ on the selected server.
+[Unit]
+Description=Parimbank Telegram cabinet
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=exec
+User=parimbank-bot
+Group=parimbank-bot
+WorkingDirectory=/opt/parimbank
+ExecStart=/usr/bin/node /opt/parimbank/bot/runner.mjs
+EnvironmentFile=/etc/parimbank-bot.env
+Environment=BOT_STATE_FILE=/var/lib/parimbank-bot/offset.json
+StateDirectory=parimbank-bot
+StateDirectoryMode=0700
+UMask=0077
+Restart=on-failure
+RestartSec=10s
+KillSignal=SIGTERM
+TimeoutStopSec=45s
+StandardOutput=journal
+StandardError=journal
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

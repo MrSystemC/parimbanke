@@ -1,0 +1,31 @@
+# Deployment proposal. Applying this Blueprint creates a paid worker and disk.
+# Supply secrets in the provider's protected fields; never commit their values.
+services:
+  - type: worker
+    name: parimbank-telegram-cabinet
+    runtime: node
+    plan: 0.5c-512mb
+    rootDir: bot
+    buildCommand: node --check client.mjs && node --check handler.mjs && node --check runner.mjs
+    startCommand: node runner.mjs
+    numInstances: 1
+    autoDeployTrigger: "off"
+    disk:
+      name: telegram-offset
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: ">=22.13.0 <23"
+      - key: SITE_URL
+        value: https://krug-events.zverm3ashinaimed512.chatgpt.site
+      - key: BOT_STATE_FILE
+        value: /var/data/offset.json
+      - key: BOT_ENABLED
+        value: "false"
+      - key: TELEGRAM_BOT_USERNAME
+        value: parimbank_bot
+# After inactive creation, configure TELEGRAM_BOT_TOKEN, SITES_SERVICE_TOKEN,
+# and TELEGRAM_BRIDGE_SECRET through protected service Environment settings,
+# then set BOT_ENABLED=true. No secret or placeholder credential is in this file.
+# The inactive bootstrap never contacts Telegram or requires placeholder secrets.

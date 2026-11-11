@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "parimbank-telegram-webhook",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-05-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "vars": {
+    "TELEGRAM_BOT_USERNAME": "parimbank_bot",
+    "SITE_URL": "https://krug-events.zverm3ashinaimed512.chatgpt.site"
+  }
+}

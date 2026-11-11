@@ -1,0 +1,17 @@
+{
+  "name": "parimbank-telegram-bot",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.13.0" },
+  "scripts": {
+    "start": "node runner.mjs",
+    "test": "node test-bot.mjs && node test-worker.mjs && node test-configure-webhook.mjs",
+    "check": "npm test && npm run test:runtime",
+    "test:runtime": "node test-worker-runtime.mjs",
+    "configure:webhook": "node configure-webhook.mjs",
+    "build": "wrangler deploy --config wrangler.jsonc --dry-run --outdir dist-worker",
+    "deploy": "wrangler deploy --config wrangler.jsonc"
+  },
+  "devDependencies": { "wrangler": "4.92.0", "miniflare": "4.20260515.0" }
+}

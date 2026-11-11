@@ -1,0 +1,6 @@
+/.state/
+/.env
+/logs/
+/node_modules/
+/.wrangler/
+/dist-worker/

@@ -1,0 +1,55 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1794206971945,
+      "tag": "0000_remarkable_gorilla_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1794206995394,
+      "tag": "0001_event_invariants",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1794209788291,
+      "tag": "0002_flaky_sauron",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1794210282476,
+      "tag": "0003_operational_guards",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1794215515980,
+      "tag": "0004_wonderful_deathstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1794217778671,
+      "tag": "0005_prize_identity_lock",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1794221522862,
+      "tag": "0006_fearless_tyrannus",
+      "breakpoints": true
+    }
+  ]
+}
