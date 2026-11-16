@@ -11,6 +11,9 @@
 - [Руководство администратора](docs/ADMIN_GUIDE_RU.md)
 - [Устройство сервера и эксплуатация](BACKEND_NOTES.md)
 - [Состояние готовности выпуска](docs/RELEASE_READINESS_RU.md)
+- [Чек-лист запуска Telegram](docs/TELEGRAM_SETUP_CHECKLIST.md)
+- [Авторизация вне Sites](docs/STANDALONE_AUTH.md)
+- Шаблоны: [правила](docs/templates/RULES_OF_PARTICIPATION_TEMPLATE.md), [политика](docs/templates/PRIVACY_POLICY_TEMPLATE.md), [призы](docs/templates/PRIZE_AVAILABILITY_CHECKLIST.md), [вейп-заметки](docs/templates/LEGAL_NOTES_VAPE.md)
 - [Источники и ограничения справочника городов](LOCATION_DIRECTORY.md)
 
 Внутри сайта руководство администратора доступно по адресу `/admin?tab=guide`, панель — `/admin`.
