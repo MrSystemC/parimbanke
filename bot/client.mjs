@@ -26,7 +26,7 @@ export function loadConfig(environment = process.env) {
   if (!/^\d{5,20}:[A-Za-z0-9_-]{20,200}$/.test(token)) throw new ConfigurationError('Invalid TELEGRAM_BOT_TOKEN format.');
   let site;
   try { site = new URL(required('SITE_URL')); } catch { throw new ConfigurationError('SITE_URL must be an HTTPS origin.'); }
-  if (site.protocol !== 'https:' || site.username || site.password || site.pathname !== '/' || site.search || site.hash) throw new ConfigurationError('SITE_URL must be an HTTPS origin without credentials, path or query.');
+  const localHttp = site.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(site.hostname);\n  if ((!['https:'].includes(site.protocol) && !localHttp) || site.username || site.password || site.pathname !== '/' || site.search || site.hash) throw new ConfigurationError('SITE_URL must be an HTTPS origin; plain HTTP is allowed only for loopback local development.');
   const bridgeSecret = required('TELEGRAM_BRIDGE_SECRET');
   if (bridgeSecret.length < 32 || bridgeSecret.length > 256 || /[\r\n]/.test(bridgeSecret)) throw new ConfigurationError('TELEGRAM_BRIDGE_SECRET must contain 32–256 characters without newlines.');
   const serviceToken = required('SITES_SERVICE_TOKEN');
