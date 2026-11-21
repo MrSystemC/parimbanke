@@ -17,7 +17,8 @@
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm test",
     "bot:start": "node bot/runner.mjs",
-    "bot:check": "node bot/test-bot.mjs"
+    "bot:check": "node bot/test-bot.mjs",
+    "start:standalone": "node standalone/server.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

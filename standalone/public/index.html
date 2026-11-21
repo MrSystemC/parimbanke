@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Пар'ИМБА'нк — на своей волне</title>
+<style>
+:root { --bg:#0f0f14; --card:#1a1a24; --accent:#39ff14; --text:#e8e8f0; --muted:#888; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); }
+.app { display:flex; min-height:100vh; }
+.sidebar { width:260px; background:#12121a; padding:20px 16px; border-right:1px solid #222; }
+.brand { font-weight:800; font-size:18px; color:var(--accent); margin-bottom:4px; }
+.brand span { color:#fff; }
+.sub { font-size:11px; color:var(--muted); letter-spacing:1px; margin-bottom:24px; }
+.nav button { display:block; width:100%; text-align:left; background:none; border:none; color:var(--text); padding:10px 12px; border-radius:8px; margin-bottom:4px; cursor:pointer; }
+.nav button.active, .nav button:hover { background:#222; }
+.balance { margin-top:24px; padding:12px; background:#1a1a24; border-radius:10px; }
+.balance strong { font-size:22px; color:var(--accent); }
+.main { flex:1; padding:24px; }
+.hero { background:linear-gradient(135deg,#1a1030,#0f1a2a); padding:32px; border-radius:16px; margin-bottom:24px; }
+.hero h1 { margin:0 0 8px; font-size:36px; }
+.hero h1 em { color:var(--accent); font-style:normal; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+.card { background:var(--card); border-radius:12px; padding:16px; border:1px solid #222; }
+.card h3 { margin:0 0 4px; }
+.progress { height:6px; background:#222; border-radius:3px; overflow:hidden; margin:8px 0; }
+.progress span { display:block; height:100%; background:var(--accent); }
+.btn { background:var(--accent); color:#000; border:none; padding:10px 16px; border-radius:8px; font-weight:600; cursor:pointer; }
+.btn.secondary { background:#333; color:#fff; }
+.modal { position:fixed; inset:0; background:rgba(0,0,0,.7); display:flex; align-items:center; justify-content:center; }
+.modal .box { background:var(--card); padding:24px; border-radius:12px; width:90%; max-width:400px; }
+input, select, textarea { width:100%; padding:10px; margin:6px 0 12px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; }
+.toast { position:fixed; bottom:20px; right:20px; background:#222; padding:12px 16px; border-radius:8px; border-left:4px solid var(--accent); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">Пар'<span>ИМБА</span>'нк</div>
+    <div class="sub">VAPOR COMMUNITY</div>
+    <nav class="nav" id="nav"></nav>
+    <div class="balance">
+      <div style="font-size:12px;color:var(--muted)">Ваш баланс</div>
+      <strong id="bal">0</strong> п
+      <button class="btn" style="margin-top:8px;width:100%" onclick="openCoins()">Запросить монеты</button>
+    </div>
+    <div style="margin-top:16px;font-size:13px" id="userInfo"></div>
+    <button class="btn secondary" style="margin-top:12px;width:100%" onclick="logout()">Выйти</button>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<div id="modal"></div>
+<div id="toast"></div>
+
+<script>
+let state = null;
+let page = 'events';
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, { credentials: 'include', ...opts, headers: { 'Content-Type': 'application/json', ...(opts.headers||{}) } });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || 'Ошибка');
+  return d;
+}
+
+function toast(msg, err) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.borderLeftColor = err ? '#f55' : 'var(--accent)';
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+
+async function load() {
+  try {
+    state = await api('/api/state');
+    render();
+  } catch (e) {
+    showLogin();
+  }
+}
+
+function showLogin() {
+  document.getElementById('main').innerHTML = `
+    <div class="hero"><h1>Пар'ИМБА'нк</h1><p>Клубные розыгрыши. Бесплатные игровые монеты.</p></div>
+    <div style="max-width:360px">
+      <h3>Вход</h3>
+      <input id="email" placeholder="Email" value="owner@local.test">
+      <input id="pass" type="password" placeholder="Пароль" value="demo123">
+      <button class="btn" onclick="login()">Войти</button>
+      <p style="margin-top:16px">Нет аккаунта? <a href="#" onclick="showReg();return false">Регистрация</a></p>
+    </div>`;
+  document.getElementById('nav').innerHTML = '';
+  document.getElementById('userInfo').textContent = '';
+}
+
+function showReg() {
+  document.getElementById('main').innerHTML = `
+    <div style="max-width:360px">
+      <h3>Регистрация</h3>
+      <input id="rname" placeholder="Имя">
+      <input id="remail" placeholder="Email">
+      <input id="rpass" type="password" placeholder="Пароль">
+      <button class="btn" onclick="register()">Создать аккаунт</button>
+    </div>`;
+}
+
+async function login() {
+  try {
+    await api('/api/login', { method:'POST', body: JSON.stringify({ email: document.getElementById('email').value, password: document.getElementById('pass').value }) });
+    load();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function register() {
+  try {
+    await api('/api/register', { method:'POST', body: JSON.stringify({ name: document.getElementById('rname').value, email: document.getElementById('remail').value, password: document.getElementById('rpass').value }) });
+    load();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function logout() {
+  await api('/api/logout');
+  state = null;
+  showLogin();
+}
+
+function render() {
+  document.getElementById('bal').textContent = state.user.balance;
+  document.getElementById('userInfo').innerHTML = `<strong>${state.user.name}</strong><br><small>${state.user.role === 'owner' ? 'Владелец' : state.user.role === 'admin' ? 'Админ' : 'Участник'}</small>`;
+  document.getElementById('nav').innerHTML = ['events','tickets','results','balance','admin'].map(p => 
+    `<button class="${page===p?'active':''}" onclick="go('${p}')">${{events:'Розыгрыши',tickets:'Мои билеты',results:'Результаты',balance:'Баланс',admin:'Управление'}[p]}</button>`
+  ).join('');
+
+  const main = document.getElementById('main');
+  if (page === 'events') {
+    const active = state.events.filter(e => e.status === 'active');
+    main.innerHTML = `
+      <div class="hero"><h1>На своей <em>волне.</em></h1><p>Выбирай дроп, забирай билеты за игровые монеты.</p></div>
+      <div class="grid">${active.map(e => card(e)).join('') || '<p>Нет активных розыгрышей</p>'}</div>`;
+  } else if (page === 'tickets') {
+    const mine = state.events.filter(e => e.myTickets.length);
+    main.innerHTML = `<h2>Мои билеты</h2><div class="grid">${mine.map(e => `<div class="card"><h3>${e.title}</h3><p>Билеты: ${e.myTickets.map(n=>'№'+String(n).padStart(3,'0')).join(', ')}</p></div>`).join('') || '<p>Пока нет билетов</p>'}</div>`;
+  } else if (page === 'results') {
+    const done = state.events.filter(e => e.status === 'completed');
+    main.innerHTML = `<h2>Результаты</h2><div class="grid">${done.map(e => `<div class="card"><h3>${e.title}</h3><p>Победил билет <strong>№${String(e.winnerTicket).padStart(3,'0')}</strong></p></div>`).join('') || '<p>Пока нет результатов</p>'}</div>`;
+  } else if (page === 'balance') {
+    main.innerHTML = `<h2>Баланс</h2><p style="font-size:32px;color:var(--accent)">${state.user.balance} п</p>
+      <h3>Операции</h3>${(state.transactions||[]).map(t => `<div>${t.label} <strong>${t.amount>0?'+':''}${t.amount}</strong></div>`).join('') || '<p>Нет операций</p>'}`;
+  } else if (page === 'admin' && (state.user.role === 'owner' || state.user.role === 'admin')) {
+    main.innerHTML = `<h2>Управление</h2>
+      <button class="btn" onclick="openCreate()">Создать розыгрыш</button>
+      <h3 style="margin-top:24px">Запросы монет</h3>
+      <div id="requests">Загрузка...</div>`;
+    // Simple requests view
+    document.getElementById('requests').innerHTML = '<p>Запросы обрабатываются через API (демо).</p>';
+  } else {
+    main.innerHTML = '<p>Недостаточно прав</p>';
+  }
+}
+
+function card(e) {
+  const pct = Math.round(e.soldTickets / e.totalTickets * 100);
+  return `<div class="card">
+    <div style="font-size:12px;color:var(--muted)">${e.city || e.region}</div>
+    <h3>${e.title}</h3>
+    <strong>${e.prizeName}</strong>
+    <div class="progress"><span style="width:${pct}%"></span></div>
+    <div style="font-size:13px">${e.soldTickets} / ${e.totalTickets} · ${e.ticketPrice} п</div>
+    <button class="btn" style="margin-top:10px" onclick="buy('${e.id}', ${e.ticketPrice})">Участвовать</button>
+  </div>`;
+}
+
+function go(p) { page = p; render(); }
+
+async function buy(eventId, price) {
+  const qty = Number(prompt('Количество билетов (1-20)', '1')) || 1;
+  if (qty < 1 || qty > 20) return;
+  try {
+    await api('/api/actions', { method:'POST', body: JSON.stringify({ action:'buyTickets', eventId, quantity: qty }) });
+    toast('Билеты получены!');
+    load();
+  } catch(e) { toast(e.message, true); }
+}
+
+function openCoins() {
+  document.getElementById('modal').innerHTML = `<div class="modal" onclick="if(event.target===this)closeModal()"><div class="box">
+    <h3>Запросить монеты</h3>
+    <input id="camount" type="number" value="500">
+    <textarea id="cmsg" placeholder="Сообщение"></textarea>
+    <button class="btn" onclick="sendCoins()">Отправить</button>
+  </div></div>`;
+}
+async function sendCoins() {
+  try {
+    await api('/api/actions', { method:'POST', body: JSON.stringify({ action:'requestCoins', amount: Number(document.getElementById('camount').value), message: document.getElementById('cmsg').value }) });
+    toast('Запрос отправлен');
+    closeModal();
+  } catch(e) { toast(e.message, true); }
+}
+
+function openCreate() {
+  document.getElementById('modal').innerHTML = `<div class="modal" onclick="if(event.target===this)closeModal()"><div class="box">
+    <h3>Новый розыгрыш</h3>
+    <input id="ctitle" placeholder="Название">
+    <input id="cprize" placeholder="Название приза">
+    <input id="ctotal" type="number" placeholder="Билетов" value="30">
+    <input id="cprice" type="number" placeholder="Цена" value="100">
+    <button class="btn" onclick="createEvent()">Создать</button>
+  </div></div>`;
+}
+async function createEvent() {
+  try {
+    await api('/api/actions', { method:'POST', body: JSON.stringify({
+      action:'createEvent',
+      title: document.getElementById('ctitle').value,
+      prizeName: document.getElementById('cprize').value,
+      totalTickets: Number(document.getElementById('ctotal').value),
+      ticketPrice: Number(document.getElementById('cprice').value),
+      region: 'Пермский край', city: 'Пермь'
+    }) });
+    toast('Розыгрыш создан');
+    closeModal();
+    load();
+  } catch(e) { toast(e.message, true); }
+}
+function closeModal() { document.getElementById('modal').innerHTML = ''; }
+
+load();
+</script>
+</body>
+</html>
